@@ -90,6 +90,7 @@ module Delayed
 
     def run_process(process_name, dir)
       Delayed::Worker.before_fork
+      @options[:user] ||= 'www-data' #default to www-data
       @options[:group] ||= @options[:user]
       Daemons.run_proc(process_name, :dir => dir, :user => @options[:user], :group => @options[:group], :dir_mode => :normal, :monitor => @monitor, :ARGV => @args) do |*args|
         $0 = File.join(@options[:prefix], process_name) if @options[:prefix]
