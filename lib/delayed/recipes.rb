@@ -34,17 +34,20 @@ Capistrano::Configuration.instance.load do
 
     desc "Stop the delayed_job process"
     task :stop, :roles => lambda { roles } do
-      run "cd #{current_path};#{rails_env} script/delayed_job stop"
+      #CHRISDO: How do we stop the www-data daemons started with sudo below??
+      run "cd #{current_path};sudo -E #{rails_env} script/delayed_job stop"
     end
 
     desc "Start the delayed_job process"
     task :start, :roles => lambda { roles } do
-      run "cd #{current_path};sudo -E #{rails_env} script/delayed_job start #{args}"
+      #POSSIBLE BUG: If the command.rb file is edited to not specify the default user then the daemons will
+      #be running as root
+      run "cd #{current_path};sudo -E #{rails_env} script/delayed_job start -u www-data #{args}"
     end
 
     desc "Restart the delayed_job process"
     task :restart, :roles => lambda { roles } do
-      run "cd #{current_path};#{rails_env} script/delayed_job restart #{args}"
+      run "cd #{current_path};sudo -E #{rails_env} script/delayed_job restart -u www-data #{args}"
     end
   end
 end
